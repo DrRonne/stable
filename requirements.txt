@@ -1,0 +1,5 @@
+werkzeug==0.16.1
+pandas
+flask
+flask_restplus
+mariadb
