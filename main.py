@@ -8,9 +8,9 @@ api = Api(app=app)
 
 app.config['SWAGGER_UI_JSONEDITOR'] = True
 
-registeraccountmodel = api.model('account', {'email': fields.Integer, 'email2': fields.Integer, 'username': fields.String, 'passwordhash': fields.String, 'passwordhash2': fields.String})
-loginaccountmodel = api.model('account', {'email': fields.Integer, 'passwordhash': fields.String})
-changepasswordmodel = api.model('account', {'email': fields.Integer, 'passwordhash': fields.String, 'newpasswordhash': fields.String, 'newpasswordhash2': fields.String})
+registeraccountmodel = api.model('account', {'email': fields.String, 'email2': fields.String, 'username': fields.String, 'passwordhash': fields.String, 'passwordhash2': fields.String})
+loginaccountmodel = api.model('account', {'email': fields.String, 'passwordhash': fields.String})
+changepasswordmodel = api.model('account', {'token': fields.String, 'passwordhash': fields.String, 'newpasswordhash': fields.String, 'newpasswordhash2': fields.String})
 
 @api.route("/RegisterAccount", methods=['POST'])
 class RegisterAccount(Resource):
@@ -26,7 +26,7 @@ class RegisterAccount(Resource):
 
 @api.route("/ChangePassword", methods=['POST'])
 class ChangePassword(Resource):
-    @api.expect(changepasswordaccountmodel)
+    @api.expect(changepasswordmodel)
     def post(self):
         return changePassword(request)
 
