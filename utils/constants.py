@@ -7,3 +7,6 @@ redis_server = os.environ.get('REDIS_SERVER')
 redis_pw = os.environ.get('REDIS_PW')
 
 TOKEN_LENGTH = 32
+
+starter_farm_length = 20
+starter_farm_width = 20
