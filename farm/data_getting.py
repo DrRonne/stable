@@ -6,15 +6,15 @@ from utils.constants import server, user, pw, redis_server, redis_pw
 redis = redis.Redis(host= redis_server, password= redis_pw)
 
 def getFarmData(request):
-    rjs = request.get_json()
+    token = request.headers.get("Authentication")
 
-    if "token" in rjs:
+    if token:
         conn = mariadb.connect(user=user,
                                password=pw,
                                host=server,
                                port=3306,
                                database="Users")
-        account_id = redis.hmget(rjs["token"], ("id",))[0]
+        account_id = redis.hmget(token, ("id",))[0]
         
         try:
             query = "SELECT farmdata FROM regular_farm JOIN " \
@@ -29,4 +29,4 @@ def getFarmData(request):
         except Exception as e:
             return f"Error executing query, {e}", 500
     else:
-        return "Token missing from request", 500
+        return "Token missing from request", 401

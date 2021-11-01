@@ -103,20 +103,22 @@ def loginAccount(request):
         return "Error logging in, data missing from login", 500
 
 def logoutAccount(request):
-    rjs = request.get_json()
+    token = request.headers.get("Authentication")
 
-    if "token" in rjs:
+    if token:
         try:
-            redis.hdel(rjs["token"], "email", "set-time")
+            redis.hdel(token, "email", "set-time")
         except Exception as e:
             return f"Error login out, {e}", 500
     else:
         return "Error loging out, token missing from logout", 500
 
+# REALLY UNFINISHED
 def changePassword(request):
     rjs = request.get_json()
+    token = request.headers.get("Authentication")
 
-    if "token" in rjs and "passwordhash" in rjs and "newpasswordhash" in rjs and "newpasswordhashrepeast" in rjs:
+    if token and "passwordhash" in rjs and "newpasswordhash" in rjs and "newpasswordhashrepeast" in rjs:
         if rjs["newpasswordhash"] != rjs["newpasswordhashrepeat"]:
             return "Error changing password, 2 passwords don't match!", 500
 
