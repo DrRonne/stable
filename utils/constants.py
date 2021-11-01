@@ -12,3 +12,6 @@ starter_farm_length = 20
 starter_farm_width = 20
 field_length = 4
 field_width = 4
+
+plow_cost = 15
+plow_exp = 1

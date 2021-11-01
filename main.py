@@ -42,7 +42,6 @@ class RegisterAccount(Resource):
 class LoginAccount(Resource):
     @api.expect(loginaccountmodel)
     def post(self):
-        print("login")
         return loginAccount(request)
 
 @api.route("/LogoutAccount", methods=['POST']) # requires token
