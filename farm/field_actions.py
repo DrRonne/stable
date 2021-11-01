@@ -107,10 +107,11 @@ def plantSeed(request):
                 if not coins >= seed_stats["cost"]:
                     return "You don't have enough coins to plant that", 500
                 
+                planted = int(datetime.now(timezone.utc).timestamp())
                 farmdata["farm-grid"][rjs["y"]][rjs["x"]] = {
                         "type": "Field",
                         "seed": rjs["seed"],
-                        "planted": int(datetime.now(timezone.utc).timestamp()),
+                        "planted": planted,
                         "fertilized": False,
                         "plown": True,
                         "queued": False,
@@ -131,7 +132,10 @@ def plantSeed(request):
                 farmerupdatedata = (newlevel, newexperience, newcoins, account_id)
                 cursor.execute(farmerupdatequery, farmerupdatedata)
                 conn.commit()
-                return "Seed planted", 200
+                responsedata = {
+                    'planted': planted
+                }
+                return responsedata, 200
             except Exception as e:
                 return f"Error executing query, {e}", 500
         else:
