@@ -15,3 +15,5 @@ field_width = 4
 
 plow_cost = 15
 plow_exp = 1
+
+wither_factor = 2.5

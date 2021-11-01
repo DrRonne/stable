@@ -4,7 +4,7 @@ from flask_cors import CORS, cross_origin
 
 from account.account import registerAccount, loginAccount, logoutAccount
 from farm.data_getting import getFarmData
-from farm.field_actions import plowField, plantSeed
+from farm.field_actions import plowField, plantSeed, harvestField
 
 authorizations = {
     "authentication token": {
@@ -30,6 +30,7 @@ logoutaccountmodel = api.model('logout account', {})
 changepasswordmodel = api.model('change password', {'password': fields.String, 'newpassword': fields.String, 'newpassword': fields.String})
 plowfieldmodel = api.model('plow field', {'x': fields.Integer, 'y': fields.Integer})
 plantseedmodel = api.model('plant seed', {'x': fields.Integer, 'y': fields.Integer, 'seed': fields.String})
+harvestfieldmodel = api.model('harvest field', {'x': fields.Integer, 'y': fields.Integer})
 
 ## ACCOUNT API'S
 @api.route("/RegisterAccount", methods=['POST'])
@@ -78,6 +79,13 @@ class PlantSeed(Resource):
     @api.expect(plantseedmodel)
     def post(self):
         return plantSeed(request)
+
+@api.route("/HarvestField", methods=['POST']) # requires token
+class HarvestField(Resource):
+    @api.doc(security='authentication token')
+    @api.expect(harvestfieldmodel)
+    def post(self):
+        return harvestField(request)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
