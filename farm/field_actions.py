@@ -75,10 +75,8 @@ def plowField(request):
                 conn.commit()
                 return "Field plown", 200
             except Exception as e:
-                print(e)
                 return f"Error executing query, {e}", 500
         else:
-            print("field data missing")
             return "Field data missing from request", 500
     else:
         return "Token missing from request", 401
@@ -88,7 +86,7 @@ def plantSeed(request):
 
     if token:
         rjs = request.get_json()
-        if "x" in rjs and "y" in rjs:
+        if "x" in rjs and "y" in rjs and "seed" in rjs:
             conn = mariadb.connect(user=user,
                                 password=pw,
                                 host=server,
