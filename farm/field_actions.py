@@ -75,8 +75,10 @@ def plowField(request):
                 conn.commit()
                 return "Field plown", 200
             except Exception as e:
+                print(e)
                 return f"Error executing query, {e}", 500
         else:
+            print("field data missing")
             return "Field data missing from request", 500
     else:
         return "Token missing from request", 401
@@ -185,15 +187,15 @@ def harvestField(request):
 
                 currenttime = int(datetime.now(timezone.utc).timestamp())
                 plantedtime = farmdata["farm-grid"][rjs["y"]][rjs["x"]]["planted"]
+                seed = farmdata["farm-grid"][rjs["y"]][rjs["x"]]["seed"]
                  # Check if item exists and if player can plant it (level and coins)
-                seed_stats = next(item for item in SEEDS if item["name"] == rjs["seed"])
+                seed_stats = next(item for item in SEEDS if item["name"] == seed)
                 if not seed_stats:
                     return "Seed doesn't exist", 500
                 
                 # Check if it's a valid spot
                 if (not (farmdata["farm-grid"][rjs["y"]] and farmdata["farm-grid"][rjs["y"]][rjs["x"]] and
-                    farmdata["farm-grid"][rjs["y"]][rjs["x"]]["seed"] and
-                    plantedtime <= currenttime - seed_stats["time"])):
+                    seed and plantedtime <= currenttime - seed_stats["time"])):
                     return "Crop is not yet fully grown", 500
 
                 farmdata["farm-grid"][rjs["y"]][rjs["x"]] = {
