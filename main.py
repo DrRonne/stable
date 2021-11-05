@@ -6,6 +6,7 @@ from account.account import registerAccount, loginAccount, logoutAccount
 from farm.data_getting import getFarmData
 from farm.field_actions import plowField, plantSeed, harvestField
 from farm.tree_actions import plantTree, harvestTree
+from farm.animal_actions import placeAnimal, harvestAnimal
 
 authorizations = {
     "authentication token": {
@@ -34,6 +35,8 @@ plantseedmodel = api.model('plant seed', {'x': fields.Integer, 'y': fields.Integ
 harvestfieldmodel = api.model('harvest field', {'x': fields.Integer, 'y': fields.Integer})
 planttreemodel = api.model('plant tree', {'x': fields.Integer, 'y': fields.Integer, 'tree': fields.String})
 harvesttreemodel = api.model('harvest tree', {'x': fields.Integer, 'y': fields.Integer})
+placeanimalmodel = api.model('place animal', {'x': fields.Integer, 'y': fields.Integer, 'animal': fields.String})
+harvestanimalmodel = api.model('harvest animal', {'x': fields.Integer, 'y': fields.Integer})
 
 ## ACCOUNT API'S
 @api.route("/RegisterAccount", methods=['POST'])
@@ -103,6 +106,20 @@ class HarvestTree(Resource):
     @api.expect(harvesttreemodel)
     def post(self):
         return harvestTree(request)
+
+@api.route("/PlaceAnimal", methods=['POST']) # requires token
+class PlaceAnimal(Resource):
+    @api.doc(security='authentication token')
+    @api.expect(placeanimalmodel)
+    def post(self):
+        return placeAnimal(request)
+
+@api.route("/HarvestAnimal", methods=['POST']) # requires token
+class HarvestAnimal(Resource):
+    @api.doc(security='authentication token')
+    @api.expect(harvestanimalmodel)
+    def post(self):
+        return harvestAnimal(request)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

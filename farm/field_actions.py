@@ -205,7 +205,7 @@ def harvestField(request):
                         "queued": False,
                     }
                 
-                newcoins = 0
+                newcoins = coins
                 if (currenttime - plantedtime < seed_stats["time"] * wither_factor):
                     newcoins += seed_stats["sellprice"]
                 
