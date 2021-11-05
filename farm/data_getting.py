@@ -6,6 +6,11 @@ from utils.constants import server, user, pw, redis_server, redis_pw
 
 redis = redis.Redis(host= redis_server, password= redis_pw)
 
+SEEDS = json.load(open("./resources/supported_seed_stats.json", "r"))
+TREES = json.load(open("./resources/supported_tree_stats.json", "r"))
+ANIMALS = json.load(open("./resources/supported_animal_stats.json", "r"))
+DECORATIONS = json.load(open("./resources/supported_decoration_stats.json", "r"))
+
 def getFarmData(request):
     token = request.headers.get("Authentication")
 
@@ -38,3 +43,15 @@ def getFarmData(request):
             return f"Error executing query, {e}", 500
     else:
         return "Token missing from request", 401
+
+def getSupportedSeeds(request):
+    return SEEDS, 200
+
+def getSupportedTrees(request):
+    return TREES, 200
+
+def getSupportedAnimals(request):
+    return ANIMALS, 200
+
+def getSupportedDecorations(request):
+    return DECORATIONS, 200

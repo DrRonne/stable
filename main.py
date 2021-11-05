@@ -3,7 +3,7 @@ from flask_restplus import Api, Resource, fields, cors
 from flask_cors import CORS, cross_origin
 
 from account.account import registerAccount, loginAccount, logoutAccount
-from farm.data_getting import getFarmData
+from farm.data_getting import getFarmData, getSupportedSeeds, getSupportedTrees, getSupportedAnimals
 from farm.field_actions import plowField, plantSeed, harvestField
 from farm.tree_actions import plantTree, harvestTree
 from farm.animal_actions import placeAnimal, harvestAnimal
@@ -65,13 +65,34 @@ class ChangePassword(Resource):
     def post(self):
         return changePassword(request)
 
-# ## FARM API'S
+## FARM DATA GETTING API'S
 @api.route("/GetFarmData", methods=['GET']) # requires token
 class GetFarmData(Resource):
     @api.doc(security='authentication token')
     def get(self):
         return getFarmData(request)
 
+@api.route("/GetSupportedSeeds", methods=['GET'])
+class GetSupportedSeeds(Resource):
+    def get(self):
+        return getSupportedSeeds(request)
+
+@api.route("/GetSupportedTrees", methods=['GET'])
+class GetSupportedTrees(Resource):
+    def get(self):
+        return getSupportedTrees(request)
+
+@api.route("/GetSupportedAnimals", methods=['GET'])
+class GetSupportedAnimals(Resource):
+    def get(self):
+        return getSupportedAnimals(request)
+
+@api.route("/GetSupportedDecorations", methods=['GET'])
+class GetSupportedDecorations(Resource):
+    def get(self):
+        return getSupportedDecorations(request)
+
+## FARM ACTION API'S
 @api.route("/PlowField", methods=['POST']) # requires token
 class PlowField(Resource):
     @api.doc(security='authentication token')
