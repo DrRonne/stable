@@ -5,7 +5,8 @@ import bcrypt
 import json
 from datetime import datetime, timezone
 
-from utils.constants import server, user, pw, redis_server, redis_pw, TOKEN_LENGTH, starter_farm_length, starter_farm_width
+from utils.constants import redis_server, redis_pw, TOKEN_LENGTH, starter_farm_length, starter_farm_width
+from utils.db_connection import getCursor, commit
 
 redis = redis.Redis(host= redis_server, password= redis_pw)
 
@@ -17,25 +18,19 @@ def registerAccount(request):
             return "Error creating account, 2 emails are not the same!", 500
         if rjs["password"] != rjs["password2"]:
             return "Error creating account, 2 passwords are not the same!", 500
-
-        conn = mariadb.connect(user=user,
-                               password=pw,
-                               host=server,
-                               port=3306,
-                               database="Users")
         try:
             statement = "SELECT COUNT(id) FROM account WHERE email=%s OR username=%s"
             data = (rjs["email"], rjs["username"])
-            cursor = conn.cursor()
+            cursor = getCursor()
             cursor.execute(statement, data)
             if cursor.fetchone()[0] == 0:
                 try:
                     query = "INSERT INTO account (username, email, passwordhash) VALUES (%s, %s, %s)"
                     hashed = bcrypt.hashpw(rjs["password"].encode('utf8'), bcrypt.gensalt())
                     data = (rjs["username"], rjs["email"], hashed)
-                    cursor = conn.cursor()
+                    cursor = getCursor()
                     cursor.execute(query, data)
-                    conn.commit()
+                    commit()
 
                     accountfetchquery = "SELECT id FROM account WHERE username=%s AND email=%s and passwordhash=%s"
                     cursor.execute(accountfetchquery, data)
@@ -44,7 +39,7 @@ def registerAccount(request):
                     farmerquery = "INSERT INTO farmer (account_id) VALUES (%s)"
                     farmerdata = (account_id,)
                     cursor.execute(farmerquery, farmerdata)
-                    conn.commit()
+                    commit()
 
                     farmerfetchquery = "SELECT id FROM farmer WHERE account_id=%s"
                     cursor.execute(farmerfetchquery, farmerdata)
@@ -63,7 +58,7 @@ def registerAccount(request):
                             starter_farm["farm-grid"][y].append(None)
                     farmdata = (farmer_id, json.dumps(starter_farm))
                     cursor.execute(farmquery, farmdata)
-                    conn.commit()
+                    commit()
                     return "Success", 200
                 except Exception as e:
                     return f"Error executing query, {e}", 500
@@ -78,15 +73,10 @@ def loginAccount(request):
     rjs = request.get_json()
 
     if "email" in rjs and "password" in rjs:
-        conn = mariadb.connect(user=user,
-                               password=pw,
-                               host=server,
-                               port=3306,
-                               database="Users")
         try:
             statement = "SELECT id, passwordhash FROM account WHERE email=%s"
             data = (rjs["email"],)
-            cursor = conn.cursor()
+            cursor = getCursor()
             cursor.execute(statement, data)
             for (retrieved_id, retrieved_passwordhash) in cursor:
                 if bcrypt.checkpw(rjs["password"].encode('utf8'), retrieved_passwordhash.encode('utf8')):
@@ -122,17 +112,12 @@ def changePassword(request):
         if rjs["newpasswordhash"] != rjs["newpasswordhashrepeat"]:
             return "Error changing password, 2 passwords don't match!", 500
 
-        conn = mariadb.connect(user=user,
-                               password=pw,
-                               host=server,
-                               port=3306,
-                               database="Tasks")
         try:
             query = f"INSERT INTO users (username, email, passwordhash) VALUES (%s, %s, %s)"
             data = (rjs["username"], rjs["email"], rjs["passwordhash"])
-            cursor = conn.cursor()
+            cursor = getCursor()
             cursor.execute(query, data)
-            conn.commit()
+            commit()
             return "Success", 200
         except Exception as e:
             return f"Error executing query, {e}", 500

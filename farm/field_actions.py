@@ -3,7 +3,8 @@ import redis
 import json
 from datetime import datetime, timezone
 
-from utils.constants import server, user, pw, redis_server, redis_pw, field_length, field_width, plow_cost, plow_exp, wither_factor
+from utils.constants import redis_server, redis_pw, field_length, field_width, plow_cost, plow_exp, wither_factor
+from utils.db_connection import getCursor, commit
 from utils.stats import calcLevel
 
 redis = redis.Redis(host= redis_server, password= redis_pw)
@@ -16,11 +17,6 @@ def plowField(request):
     if token:
         rjs = request.get_json()
         if "x" in rjs and "y" in rjs:
-            conn = mariadb.connect(user=user,
-                                password=pw,
-                                host=server,
-                                port=3306,
-                                database="Users")
             account_id = redis.hmget(token, ("id",))[0]
             
             try:
@@ -29,7 +25,7 @@ def plowField(request):
                     "ON account.id = farmer.account_id WHERE farmer.account_id = %s) as sub " \
                     "ON regular_farm.owner_id = sub.sub_id"
                 query_data = (account_id,)
-                cursor = conn.cursor()
+                cursor = getCursor()
                 cursor.execute(query, query_data)
                 retrieved_data = cursor.fetchone()
                 farmdata = json.loads(retrieved_data[0])
@@ -72,7 +68,7 @@ def plowField(request):
                     "SET level = %s, experience = %s, coins = %s WHERE farmer.account_id = %s"
                 farmerupdatedata = (newlevel, newexperience, newcoins, account_id)
                 cursor.execute(farmerupdatequery, farmerupdatedata)
-                conn.commit()
+                commit()
                 return "Field plown", 200
             except Exception as e:
                 return f"Error executing query, {e}", 500
@@ -87,11 +83,6 @@ def plantSeed(request):
     if token:
         rjs = request.get_json()
         if "x" in rjs and "y" in rjs and "seed" in rjs:
-            conn = mariadb.connect(user=user,
-                                password=pw,
-                                host=server,
-                                port=3306,
-                                database="Users")
             account_id = redis.hmget(token, ("id",))[0]
             
             try:
@@ -100,7 +91,7 @@ def plantSeed(request):
                     "ON account.id = farmer.account_id WHERE farmer.account_id = %s) as sub " \
                     "ON regular_farm.owner_id = sub.sub_id"
                 query_data = (account_id,)
-                cursor = conn.cursor()
+                cursor =getCursor()
                 cursor.execute(query, query_data)
                 retrieved_data = cursor.fetchone()
                 level = retrieved_data[0]
@@ -146,7 +137,7 @@ def plantSeed(request):
                     "SET level = %s, experience = %s, coins = %s WHERE farmer.account_id = %s"
                 farmerupdatedata = (newlevel, newexperience, newcoins, account_id)
                 cursor.execute(farmerupdatequery, farmerupdatedata)
-                conn.commit()
+                commit()
                 responsedata = {
                     'planted': planted
                 }
@@ -164,11 +155,6 @@ def harvestField(request):
     if token:
         rjs = request.get_json()
         if "x" in rjs and "y" in rjs:
-            conn = mariadb.connect(user=user,
-                                password=pw,
-                                host=server,
-                                port=3306,
-                                database="Users")
             account_id = redis.hmget(token, ("id",))[0]
             
             try:
@@ -177,7 +163,7 @@ def harvestField(request):
                     "ON account.id = farmer.account_id WHERE farmer.account_id = %s) as sub " \
                     "ON regular_farm.owner_id = sub.sub_id"
                 query_data = (account_id,)
-                cursor = conn.cursor()
+                cursor = getCursor()
                 cursor.execute(query, query_data)
                 retrieved_data = cursor.fetchone()
                 coins = retrieved_data[0]
@@ -220,7 +206,7 @@ def harvestField(request):
                     "SET coins = %s WHERE farmer.account_id = %s"
                 farmerupdatedata = (newcoins, account_id)
                 cursor.execute(farmerupdatequery, farmerupdatedata)
-                conn.commit()
+                commit()
                 return {"withered": newcoins == 0}, 200
             except Exception as e:
                 return f"Error executing query, {e}", 500
