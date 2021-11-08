@@ -102,20 +102,12 @@ def harvestTree(request):
 
                 currenttime = int(datetime.now(timezone.utc).timestamp())
                 lastharvestedtime = farmdata["farm-grid"][rjs["y"]][rjs["x"]]["lastHarvested"]
-                tree_stats = next(item for item in TREES if item["name"] == rjs["tree"])
+                tree_stats = next(item for item in TREES if item["name"] == farmdata["farm-grid"][rjs["y"]][rjs["x"]]["tree"])
                 
                 # Check if it's a valid spot
                 if (not (farmdata["farm-grid"][rjs["y"]] and farmdata["farm-grid"][rjs["y"]][rjs["x"]] and
-                    tree and lastharvestedtime <= currenttime - tree_stats["time"])):
+                    tree_stats and lastharvestedtime <= currenttime - tree_stats["time"])):
                     return "Crop is not yet fully grown", 500
-
-                # Check if item exists and if player can plant it (level and coins)
-                if not tree_stats:
-                    return "Tree doesn't exist", 500
-                if not level >= tree_stats["level"]:
-                    return "You don't have the required level to plant that", 500
-                if not coins >= tree_stats["cost"]:
-                    return "You don't have enough coins to plant that", 500
                 
                 farmdata["farm-grid"][rjs["y"]][rjs["x"]] = {
                         "type": "Tree",
@@ -138,7 +130,7 @@ def harvestTree(request):
                 cursor.execute(farmerupdatequery, farmerupdatedata)
                 commit()
                 responsedata = {
-                    'lastHarvested': lastHarvested
+                    'lastHarvested': currenttime
                 }
                 return responsedata, 200
             except Exception as e:

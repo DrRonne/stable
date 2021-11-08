@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 
 from utils.constants import redis_server, redis_pw
 from utils.db_connection import getCursor, commit
+from utils.stats import calcLevel
 
 redis = redis.Redis(host= redis_server, password= redis_pw)
 
@@ -111,11 +112,14 @@ def harvestAnimal(request):
 
                 currenttime = int(datetime.now(timezone.utc).timestamp())
                 lastharvestedtime = farmdata["farm-grid"][rjs["y"]][rjs["x"]]["lastHarvested"]
-                animal_stats = next(item for item in ANIMALS if item["name"] == rjs["animal"])
+                animal_stats = next(item for item in ANIMALS if item["name"] == farmdata["farm-grid"][rjs["y"]][rjs["x"]]["animal"])
                 
+                if (not "time" in animal_stats or not animal_stats["time"]):
+                    return "Animal not harvestable", 500
+
                 # Check if it's a valid spot
                 if (not (farmdata["farm-grid"][rjs["y"]] and farmdata["farm-grid"][rjs["y"]][rjs["x"]] and
-                    animal and lastharvestedtime <= currenttime - animal_stats["time"])):
+                    animal_stats and lastharvestedtime <= currenttime - animal_stats["time"])):
                     return "Animal not ready to harvest", 500
                 
                 farmdata["farm-grid"][rjs["y"]][rjs["x"]] = {
@@ -145,7 +149,7 @@ def harvestAnimal(request):
                 cursor.execute(farmerupdatequery, farmerupdatedata)
                 commit()
                 responsedata = {
-                    'lastHarvested': lastHarvested
+                    'lastHarvested': currenttime
                 }
                 return responsedata, 200
             except Exception as e:
