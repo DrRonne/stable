@@ -35,13 +35,10 @@ def placeAnimal(request):
                 # Check if item exists and if player can plant it (level and coins)
                 animal_stats = next(item for item in ANIMALS if item["name"] == rjs["animal"])
                 if not animal_stats:
-                    print(1)
                     return "Animal doesn't exist", 500
                 if not level >= animal_stats["level"]:
-                    print(2)
                     return "You don't have the required level to buy that", 500
                 if not coins >= animal_stats["cost"]:
-                    print(3)
                     return "You don't have enough coins to buy that", 500
                 
                 # Check if it's a valid spot
@@ -52,7 +49,6 @@ def placeAnimal(request):
                         if (rjs["y"] < 0 or rjs["y"] > len(farmdata["farm-grid"]) - 1 or
                             rjs["x"] < 0 or rjs["x"] > len(farmdata["farm-grid"][y]) - 1 or
                             farmdata["farm-grid"][y][x]):
-                            print(4)
                             return "Cannot place animal here", 500
                 
                 lastHarvested = int(datetime.now(timezone.utc).timestamp())
@@ -81,7 +77,6 @@ def placeAnimal(request):
                 }
                 return responsedata, 200
             except Exception as e:
-                print(e)
                 return f"Error executing query, {e}", 500
         else:
             return "Animal data missing from request", 500

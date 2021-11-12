@@ -7,6 +7,7 @@ from farm.data_getting import getFarmData, getSupportedSeeds, getSupportedTrees,
 from farm.field_actions import plowField, plantSeed, harvestField
 from farm.tree_actions import plantTree, harvestTree
 from farm.animal_actions import placeAnimal, harvestAnimal
+from farm.decoration_actions import placeDecoration
 
 authorizations = {
     "authentication token": {
@@ -37,6 +38,7 @@ planttreemodel = api.model('plant tree', {'x': fields.Integer, 'y': fields.Integ
 harvesttreemodel = api.model('harvest tree', {'x': fields.Integer, 'y': fields.Integer})
 placeanimalmodel = api.model('place animal', {'x': fields.Integer, 'y': fields.Integer, 'animal': fields.String})
 harvestanimalmodel = api.model('harvest animal', {'x': fields.Integer, 'y': fields.Integer})
+placedecorationmodel = api.model('place decoration', {'x': fields.Integer, 'y': fields.Integer, 'decoration': fields.String})
 
 ## ACCOUNT API'S
 @api.route("/RegisterAccount", methods=['POST'])
@@ -141,6 +143,13 @@ class HarvestAnimal(Resource):
     @api.expect(harvestanimalmodel)
     def post(self):
         return harvestAnimal(request)
+
+@api.route("/PlaceDecoration", methods=['POST']) # requires token
+class PlaceDecoration(Resource):
+    @api.doc(security='authentication token')
+    @api.expect(placedecorationmodel)
+    def post(self):
+        return placeDecoration(request)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
